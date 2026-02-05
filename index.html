@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cetak Sawah Documentation</title>
+    
+    <!-- Import Roboto Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- CSS VARIABLES --- */
+        :root {
+            --color-primary: #1a73e8;
+            --color-primary-hover: #1557b0;
+            --color-bg: #ffffff;
+            --color-bg-alt: #f8f9fa;
+            --color-text: #202124;
+            --color-text-secondary: #5f6368;
+            --color-border: #dadce0;
+            --color-code-bg: #f1f3f4;
+            --sidebar-width: 250px;
+            --header-height: 64px;
+            
+            /* Alert Colors */
+            --color-info-bg: #e8f0fe;
+            --color-info-text: #1967d2;
+            --color-warning-bg: #fef7e0;
+            --color-warning-text: #b06000;
+            --color-success-bg: #e6f4ea;
+            --color-success-text: #137333;
+        }
+
+        /* --- RESET & BASE --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Roboto', sans-serif; color: var(--color-text); background-color: var(--color-bg); line-height: 1.6; }
+        a { color: var(--color-primary); text-decoration: none; }
+
+        /* --- LAYOUT --- */
+        .app-container { display: flex; flex-direction: column; min-height: 100vh; }
+
+        /* --- HEADER --- */
+        .header {
+            height: var(--header-height); border-bottom: 1px solid var(--color-border);
+            display: flex; align-items: center; padding: 0 24px;
+            position: fixed; top: 0; left: 0; right: 0;
+            background: rgba(255, 255, 255, 0.95); z-index: 1000;
+        }
+        .menu-toggle { display: none; background: none; border: none; cursor: pointer; padding: 8px; margin-right: 16px; border-radius: 50%; }
+        .menu-toggle:hover { background-color: rgba(60, 64, 67, 0.08); }
+
+        /* Logo Style */
+        .logo {
+            font-size: 22px; font-weight: 500; color: var(--color-text-secondary);
+            display: flex; align-items: center; gap: 8px; text-decoration: none;
+        }
+        .logo:hover { text-decoration: none; opacity: 0.8; }
+        .logo span { color: var(--color-text); font-weight: 700; }
+
+        /* --- MAIN WRAPPER --- */
+        .main-wrapper { display: flex; margin-top: var(--header-height); min-height: calc(100vh - var(--header-height)); }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: var(--sidebar-width); position: fixed; top: var(--header-height); bottom: 0; left: 0;
+            overflow-y: auto; border-right: 1px solid var(--color-border); padding: 24px 0;
+            background: var(--color-bg); transition: transform 0.3s ease; z-index: 900;
+        }
+        .sidebar-nav { list-style: none; }
+        .sidebar-item { display: block; }
+
+        /* Heading Style */
+        .sidebar-heading {
+            padding: 12px 24px 4px; 
+            font-size: 15px; 
+            font-weight: 700;
+            font-family: 'Roboto Mono', monospace; 
+            color: var(--color-text);
+            text-transform: uppercase; 
+            letter-spacing: 0.5px;
+        }
+
+        /* Link Sidebar Utama */
+        .sidebar-link {
+            display: block; 
+            padding: 6px 24px; 
+            font-size: 13px; 
+            color: var(--color-text-secondary);
+            font-weight: 500; text-decoration: none;
+        }
+        
+        /* Parent Dropdown Styling */
+        .sidebar-link-parent {
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+        }
+        .sidebar-link-parent:hover { background-color: var(--color-bg-alt); }
+        .sidebar-link-parent:hover span { color: var(--color-text); }
+
+        .sidebar-link-parent .chevron {
+            transition: transform 0.3s ease; width: 18px; height: 18px; fill: var(--color-text-secondary);
+        }
+        /* Rotate Logic */
+        .sidebar-link-parent[aria-expanded="true"] .chevron { transform: rotate(180deg); }
+        .sidebar-link-parent[aria-expanded="false"] .chevron { transform: rotate(-90deg); }
+
+        /* Sub Menu Styling */
+        .sidebar-submenu { list-style: none; display: none; background-color: var(--color-bg-alt); }
+        .sidebar-submenu.open { display: block; }
+
+        /* Item Sub Menu */
+        .sidebar-submenu .sidebar-link {
+            padding-left: 48px; 
+            padding-top: 5px; 
+            padding-bottom: 5px; 
+            font-size: 13px; font-weight: 400; color: var(--color-text);
+            cursor: pointer; position: relative;
+        }
+        .sidebar-submenu .sidebar-link:hover { text-decoration: none; color: var(--color-primary); }
+        .sidebar-submenu .sidebar-link.active { color: var(--color-primary); font-weight: 500; background-color: #e8f0fe; }
+        
+        /* Indikator aktif */
+        .sidebar-submenu .sidebar-link.active::before {
+            content: ""; position: absolute; left: 24px; top: 50%; transform: translateY(-50%);
+            height: 16px; width: 4px; background-color: var(--color-primary); border-radius: 2px;
+        }
+
+        /* --- CONTENT AREA --- */
+        .content {
+            flex: 1; margin-left: var(--sidebar-width); padding: 40px 24px 100px;
+            max-width: 100%; width: 100%;
+        }
+        /* Typography & Components */
+        h1 { font-size: 36px; font-weight: 400; margin-bottom: 24px; color: var(--color-text); }
+        h2 { font-size: 24px; font-weight: 400; margin-top: 40px; margin-bottom: 16px; border-bottom: 1px solid var(--color-border); padding-bottom: 8px; }
+        p { margin-bottom: 16px; color: var(--color-text-secondary); font-size: 16px; }
+        
+        .breadcrumbs { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 16px; display: flex; align-items: center; }
+        .breadcrumbs span { margin: 0 8px; color: var(--color-border); }
+
+        .alert { padding: 12px 16px; margin: 24px 0; border-radius: 4px; display: flex; align-items: flex-start; gap: 12px; font-size: 14px; }
+        .alert-info { background-color: var(--color-info-bg); color: var(--color-info-text); border-left: 4px solid var(--color-info-text); }
+        
+        /* Table Container & Iframe Styles */
+        .table-container { 
+            overflow: hidden; 
+            margin: 24px 0; 
+            border: none; 
+            border-radius: 4px; 
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+        }
+        
+        /* Style khusus untuk Iframe Spreadsheet */
+        .table-container iframe {
+            width: 100%;
+            height: 700px; 
+            border: none;
+            display: block;
+            
+            /* Trik Geser (Slide) untuk menyembunyikan Grid Header */
+            margin-top: -25px;
+            margin-left: 0x; 
+        }
+
+        /* Style Code Block (Untuk keperluan lain jika ada) */
+        .code-block { position: relative; background-color: var(--color-code-bg); border-radius: 6px; margin: 24px 0; font-family: 'Roboto Mono', monospace; font-size: 13px; border: 1px solid var(--color-border); }
+        .code-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background-color: #e8eaed; border-bottom: 1px solid var(--color-border); border-radius: 6px 6px 0 0; color: var(--color-text-secondary); font-size: 12px; font-family: 'Roboto', sans-serif; }
+        .copy-btn { background: none; border: none; cursor: pointer; color: var(--color-text-secondary); font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 4px; }
+        .copy-btn:hover { color: var(--color-primary); }
+        pre { padding: 16px; overflow-x: auto; margin: 0; }
+        code { color: #333; }
+        .kw { color: #a82626; font-weight: 500; } .fn { color: #1a73e8; } .str { color: #188038; }
+
+        .footer { margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--color-border); font-size: 12px; color: var(--color-text-secondary); display: flex; gap: 24px; }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); box-shadow: 4px 0 12px rgba(0,0,0,0.1); }
+            .sidebar.open { transform: translateX(0); }
+            .content { margin-left: 0; padding: 24px 20px; }
+            .menu-toggle { display: block; }
+            .overlay { display: none; position: fixed; top: var(--header-height); left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 800; }
+            .overlay.active { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <button class="menu-toggle" aria-label="Toggle Navigation">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                </svg>
+            </button>
+            <!-- Logo: 🌾 -->
+            <a href="#" class="logo">
+                🌾
+                <span>Cetak Sawah</span>
+            </a>
+        </header>
+
+        <div class="main-wrapper">
+            <!-- Mobile Overlay -->
+            <div class="overlay" id="overlay"></div>
+
+            <!-- Sidebar Navigation -->
+            <aside class="sidebar" id="sidebar">
+                <nav>
+                    <ul class="sidebar-nav">
+                        <!-- Heading (Warna Hitam) -->
+                        <li class="sidebar-heading">Monitoring Pekerjaan</li>
+
+                        <!-- Menu: Rekapitulasi (Active) -->
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link active">Rekapitulasi</a>
+                        </li>
+
+                        <!-- Dropdown 1: Bengalon (Collapsed) -->
+                        <li class="sidebar-item">
+                            <div class="sidebar-link sidebar-link-parent" 
+                                 onclick="toggleMenu(this, 'bengalon-menu')" 
+                                 aria-expanded="false">
+                                <span>Kecamatan Bengalon</span>
+                                <svg class="chevron" viewBox="0 0 24 24">
+                                    <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                                </svg>
+                            </div>
+                            <ul id="bengalon-menu" class="sidebar-submenu">
+                                <li><a href="#" class="sidebar-link">Desa Sepaso</a></li>
+                                <li><a href="#" class="sidebar-link">Desa Sepaso 2</a></li>
+                                <li><a href="#" class="sidebar-link">Desa Sepaso Barat 1</a></li>
+                                <li><a href="#" class="sidebar-link">Desa Sepaso Barat 2</a></li>
+                                <li><a href="#" class="sidebar-link">Desa Sepaso Barat 3</a></li>
+                                <li><a href="#" class="sidebar-link">Desa Sepaso Timur</a></li>
+                                <li><a href="#" class="sidebar-link">Desa Sepaso Selatan</a></li>
+                                <li><a href="#" class="sidebar-link">Desa Sepaso Selatan 2</a></li>
+                                <li><a href="#" class="sidebar-link">Desa Keraitan</a></li>
+                                <li><a href="#" class="sidebar-link">Desa Keraitan 2</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- Dropdown 2: Long Mesangat (Collapsed) -->
+                        <li class="sidebar-item">
+                            <div class="sidebar-link sidebar-link-parent" 
+                                 onclick="toggleMenu(this, 'long-menu')" 
+                                 aria-expanded="false">
+                                <span>Kecamatan Long Mesangat</span>
+                                <svg class="chevron" viewBox="0 0 24 24">
+                                    <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                                </svg>
+                            </div>
+                            <ul id="long-menu" class="sidebar-submenu">
+                                <li><a href="#" class="sidebar-link">Desa Tanah Abang Selatan</a></li>
+                                <li><a href="#" class="sidebar-link">Desa Tanah Abang Barat</a></li>
+                                <li><a href="#" class="sidebar-link">Desa Tanah Abang Utara</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- Dropdown 3: Sandaran (Collapsed) -->
+                        <li class="sidebar-item">
+                            <div class="sidebar-link sidebar-link-parent" 
+                                 onclick="toggleMenu(this, 'sandaran-menu')" 
+                                 aria-expanded="false">
+                                <span>Kecamatan Sandaran</span>
+                                <svg class="chevron" viewBox="0 0 24 24">
+                                    <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                                </svg>
+                            </div>
+                            <ul id="sandaran-menu" class="sidebar-submenu">
+                                <li><a href="#" class="sidebar-link">Desa Susuk Dalam</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- Menu: Download Data -->
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link">Download Data</a>
+                        </li>
+
+                    </ul>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="content">
+                <!-- Breadcrumbs -->
+                <div class="breadcrumbs">
+                    <a href="#">Docs</a>
+                    <span>/</span>
+                    <span>Monitoring Pekerjaan</span>
+                    <span>/</span>
+                    <span>Rekapitulasi</span>
+                </div>
+
+                <!-- Article -->
+                <article>
+                    <h1>Rekapitulasi Data</h1>
+                    <p>
+                        Halaman ini adalah halaman awal (Dashboard) untuk melihat rekapitulasi data monitoring pekerjaan secara keseluruhan di wilayah kerja Cetak Sawah. Data di bawah ini diambil langsung dari Spreadsheet.
+                    </p>
+
+                    <div class="alert alert-info">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        <span><strong>Note:</strong> Tabel di bawah bersifat live. Refresh halaman untuk memastikan data terbaru muncul.</span>
+                    </div>
+
+                    <h2>Ringkasan Wilayah</h2>
+                    <p>Data real-time wilayah dari sistem Cetak Sawah.</p>
+
+                    <!-- Table Container (Embed Google Sheet 1: Rekapitulasi) -->
+                    <div class="table-container">
+                        <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQoLK0B5MvEcpH9QPNbloQinOt3t7dccD32p_RvORHOzsTJFIQJ51aawwJZdgwHnWS9960yLhXmbkLo/pubhtml?widget=true&amp;headers=false"></iframe>
+                    </div>
+
+                    <!-- NEW SECTION: Time Schedule (Embed Google Sheet 2) -->
+                    <h2>Time Schedule</h2>
+                    <p>Jadwal pelaksanaan pekerjaan dan maintenance terjadwal.</p>
+
+                    <div class="table-container">
+                        <!-- GANTI LINK DI BAWAH INI DENGAN LINK SPREADSHEET JADWAL ANDA -->
+                        <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQoLK0B5MvEcpH9QPNbloQinOt3t7dccD32p_RvORHOzsTJFIQJ51aawwJZdgwHnWS9960yLhXmbkLo/pubhtml?widget=true&amp;headers=false"></iframe>
+                    </div>
+
+                </article>
+
+                <!-- Footer -->
+                <footer class="footer">
+                    <span>© 2023 Cetak Sawah Inc.</span>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                </footer>
+            </main>
+        </div>
+    </div>
+
+    <!-- JavaScript Interactivity -->
+    <script>
+        // Sidebar Mobile Toggle
+        const menuToggle = document.querySelector('.menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        function toggleMobileMenu() {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            const isExpanded = sidebar.classList.contains('open');
+            menuToggle.setAttribute('aria-expanded', isExpanded);
+        }
+
+        menuToggle.addEventListener('click', toggleMobileMenu);
+        overlay.addEventListener('click', toggleMobileMenu);
+
+        // Generic Collapsible Submenu Function
+        function toggleMenu(element, menuId) {
+            const submenu = document.getElementById(menuId);
+            const isExpanded = element.getAttribute('aria-expanded') === 'true';
+
+            if (isExpanded) {
+                submenu.classList.remove('open');
+                element.setAttribute('aria-expanded', 'false');
+            } else {
+                submenu.classList.add('open');
+                element.setAttribute('aria-expanded', 'true');
+            }
+        }
+
+        // Copy to Clipboard Logic
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block').querySelector('pre');
+            const text = codeBlock.innerText;
+
+            navigator.clipboard.writeText(text).then(() => {
+                const originalContent = button.innerHTML;
+                button.innerHTML = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg> Copied!
+                `;
+                button.style.color = '#188038';
+                setTimeout(() => {
+                    button.innerHTML = originalContent;
+                    button.style.color = '';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
