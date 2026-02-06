@@ -36,7 +36,7 @@
         /* --- RESET & BASE --- */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Roboto', sans-serif; color: var(--color-text); background-color: var(--color-bg); line-height: 1.6; }
-        a { color: var(--color-primary); text-decoration: none; }
+        a { color: var(--color-primary); text-decoration: none; cursor: pointer; }
 
         /* --- LAYOUT --- */
         .app-container { display: flex; flex-direction: column; min-height: 100vh; }
@@ -47,8 +47,9 @@
             display: flex; align-items: center; padding: 0 24px;
             position: fixed; top: 0; left: 0; right: 0;
             background: rgba(255, 255, 255, 0.95); z-index: 1000;
+            backdrop-filter: blur(5px);
         }
-        .menu-toggle { display: none; background: none; border: none; cursor: pointer; padding: 8px; margin-right: 16px; border-radius: 50%; }
+        .menu-toggle { display: none; background: none; border: none; cursor: pointer; padding: 8px; margin-right: 16px; border-radius: 50%; transition: background 0.2s; }
         .menu-toggle:hover { background-color: rgba(60, 64, 67, 0.08); }
 
         /* Logo Style */
@@ -84,18 +85,27 @@
 
         /* Link Sidebar Utama */
         .sidebar-link {
-            display: block; 
+            display: flex; justify-content: space-between; align-items: center;
             padding: 6px 24px; 
             font-size: 13px; 
             color: var(--color-text-secondary);
             font-weight: 500; text-decoration: none;
+            border-left: 3px solid transparent;
         }
         
+        /* Active State Link */
+        .sidebar-link.active {
+            color: var(--color-primary);
+            background-color: #e8f0fe;
+            border-left-color: var(--color-primary);
+        }
+        .sidebar-link:hover:not(.sidebar-link-parent) { background-color: var(--color-bg-alt); }
+
         /* Parent Dropdown Styling */
         .sidebar-link-parent {
-            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+            cursor: pointer;
+            padding-right: 12px; /* space for chevron */
         }
-        .sidebar-link-parent:hover { background-color: var(--color-bg-alt); }
         .sidebar-link-parent:hover span { color: var(--color-text); }
 
         .sidebar-link-parent .chevron {
@@ -115,22 +125,31 @@
             padding-top: 5px; 
             padding-bottom: 5px; 
             font-size: 13px; font-weight: 400; color: var(--color-text);
-            cursor: pointer; position: relative;
+            position: relative;
         }
-        .sidebar-submenu .sidebar-link:hover { text-decoration: none; color: var(--color-primary); }
-        .sidebar-submenu .sidebar-link.active { color: var(--color-primary); font-weight: 500; background-color: #e8f0fe; }
-        
-        /* Indikator aktif */
-        .sidebar-submenu .sidebar-link.active::before {
-            content: ""; position: absolute; left: 24px; top: 50%; transform: translateY(-50%);
-            height: 16px; width: 4px; background-color: var(--color-primary); border-radius: 2px;
-        }
+        .sidebar-submenu .sidebar-link:hover { color: var(--color-primary); }
+        .sidebar-submenu .sidebar-link.active { font-weight: 700; }
 
         /* --- CONTENT AREA --- */
         .content {
             flex: 1; margin-left: var(--sidebar-width); padding: 40px 24px 100px;
             max-width: 100%; width: 100%;
         }
+
+        /* SPA Page Visibility Logic */
+        .page-section {
+            display: none; /* Hide all by default */
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        .page-section.active-page {
+            display: block; /* Show active */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         /* Typography & Components */
         h1 { font-size: 36px; font-weight: 400; margin-bottom: 24px; color: var(--color-text); }
         h2 { font-size: 24px; font-weight: 400; margin-top: 40px; margin-bottom: 16px; border-bottom: 1px solid var(--color-border); padding-bottom: 8px; }
@@ -152,26 +171,30 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
         }
         
-        /* Style khusus untuk Iframe Spreadsheet */
         .table-container iframe {
             width: 100%;
             height: 700px; 
             border: none;
             display: block;
-            
-            /* Trik Geser (Slide) untuk menyembunyikan Grid Header */
-            margin-top: -25px;
-            margin-left: 0x; 
+            margin-top: -25px; /* Trik Geser Grid Header */
+            margin-left: 0px; 
         }
 
-        /* Style Code Block (Untuk keperluan lain jika ada) */
-        .code-block { position: relative; background-color: var(--color-code-bg); border-radius: 6px; margin: 24px 0; font-family: 'Roboto Mono', monospace; font-size: 13px; border: 1px solid var(--color-border); }
-        .code-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background-color: #e8eaed; border-bottom: 1px solid var(--color-border); border-radius: 6px 6px 0 0; color: var(--color-text-secondary); font-size: 12px; font-family: 'Roboto', sans-serif; }
-        .copy-btn { background: none; border: none; cursor: pointer; color: var(--color-text-secondary); font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 4px; }
-        .copy-btn:hover { color: var(--color-primary); }
-        pre { padding: 16px; overflow-x: auto; margin: 0; }
-        code { color: #333; }
-        .kw { color: #a82626; font-weight: 500; } .fn { color: #1a73e8; } .str { color: #188038; }
+        /* Download Card Style */
+        .download-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 20px; }
+        .download-card {
+            border: 1px solid var(--color-border); border-radius: 8px; padding: 20px;
+            transition: box-shadow 0.2s, transform 0.2s; background: #fff;
+        }
+        .download-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateY(-2px); }
+        .download-icon { font-size: 32px; margin-bottom: 12px; color: var(--color-primary); }
+        .download-title { font-weight: 500; margin-bottom: 8px; font-size: 16px; }
+        .download-desc { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 16px; }
+        .btn-download {
+            display: inline-block; padding: 8px 16px; background-color: var(--color-primary); color: #fff;
+            border-radius: 4px; font-size: 14px; font-weight: 500; text-align: center;
+        }
+        .btn-download:hover { background-color: var(--color-primary-hover); text-decoration: none; }
 
         .footer { margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--color-border); font-size: 12px; color: var(--color-text-secondary); display: flex; gap: 24px; }
 
@@ -196,8 +219,8 @@
                     <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
                 </svg>
             </button>
-            <!-- Logo: 🌾 -->
-            <a href="#" class="logo">
+            <!-- Logo -->
+            <a href="#" class="logo" onclick="navigateTo('dashboard', event)">
                 🌾
                 <span>Cetak Sawah</span>
             </a>
@@ -211,15 +234,16 @@
             <aside class="sidebar" id="sidebar">
                 <nav>
                     <ul class="sidebar-nav">
-                        <!-- Heading (Warna Hitam) -->
                         <li class="sidebar-heading">Monitoring Pekerjaan</li>
 
-                        <!-- Menu: Rekapitulasi (Active) -->
+                        <!-- Menu: Dashboard -->
                         <li class="sidebar-item">
-                            <a href="#" class="sidebar-link active">Rekapitulasi</a>
+                            <a href="#" class="sidebar-link active" id="nav-dashboard" onclick="navigateTo('dashboard', event)">
+                                <span>Dashboard</span>
+                            </a>
                         </li>
 
-                        <!-- Dropdown 1: Bengalon (Collapsed) -->
+                        <!-- Dropdown 1: Bengalon -->
                         <li class="sidebar-item">
                             <div class="sidebar-link sidebar-link-parent" 
                                  onclick="toggleMenu(this, 'bengalon-menu')" 
@@ -230,20 +254,21 @@
                                 </svg>
                             </div>
                             <ul id="bengalon-menu" class="sidebar-submenu">
-                                <li><a href="#" class="sidebar-link">Desa Sepaso</a></li>
-                                <li><a href="#" class="sidebar-link">Desa Sepaso 2</a></li>
-                                <li><a href="#" class="sidebar-link">Desa Sepaso Barat 1</a></li>
-                                <li><a href="#" class="sidebar-link">Desa Sepaso Barat 2</a></li>
-                                <li><a href="#" class="sidebar-link">Desa Sepaso Barat 3</a></li>
-                                <li><a href="#" class="sidebar-link">Desa Sepaso Timur</a></li>
-                                <li><a href="#" class="sidebar-link">Desa Sepaso Selatan</a></li>
-                                <li><a href="#" class="sidebar-link">Desa Sepaso Selatan 2</a></li>
-                                <li><a href="#" class="sidebar-link">Desa Keraitan</a></li>
-                                <li><a href="#" class="sidebar-link">Desa Keraitan 2</a></li>
+                                <!-- Data Attributes untuk parameter SPA -->
+                                <li><a href="#" class="sidebar-link" onclick="navigateTo('village', event, 'Desa Sepaso', 'Bengalon')">Desa Sepaso</a></li>
+                                <li><a href="#" class="sidebar-link" onclick="navigateTo('village', event, 'Desa Sepaso 2', 'Bengalon')">Desa Sepaso 2</a></li>
+                                <li><a href="#" class="sidebar-link" onclick="navigateTo('village', event, 'Desa Sepaso Barat 1', 'Bengalon')">Desa Sepaso Barat 1</a></li>
+                                <li><a href="#" class="sidebar-link" onclick="navigateTo('village', event, 'Desa Sepaso Barat 2', 'Bengalon')">Desa Sepaso Barat 2</a></li>
+                                <li><a href="#" class="sidebar-link" onclick="navigateTo('village', event, 'Desa Sepaso Barat 3', 'Bengalon')">Desa Sepaso Barat 3</a></li>
+                                <li><a href="#" class="sidebar-link" onclick="navigateTo('village', event, 'Desa Sepaso Timur', 'Bengalon')">Desa Sepaso Timur</a></li>
+                                <li><a href="#" class="sidebar-link" onclick="navigateTo('village', event, 'Desa Sepaso Selatan', 'Bengalon')">Desa Sepaso Selatan</a></li>
+                                <li><a href="#" class="sidebar-link" onclick="navigateTo('village', event, 'Desa Sepaso Selatan 2', 'Bengalon')">Desa Sepaso Selatan 2</a></li>
+                                <li><a href="#" class="sidebar-link" onclick="navigateTo('village', event, 'Desa Keraitan', 'Bengalon')">Desa Keraitan</a></li>
+                                <li><a href="#" class="sidebar-link" onclick="navigateTo('village', event, 'Desa Keraitan 2', 'Bengalon')">Desa Keraitan 2</a></li>
                             </ul>
                         </li>
 
-                        <!-- Dropdown 2: Long Mesangat (Collapsed) -->
+                        <!-- Dropdown 2: Long Mesangat -->
                         <li class="sidebar-item">
                             <div class="sidebar-link sidebar-link-parent" 
                                  onclick="toggleMenu(this, 'long-menu')" 
@@ -254,13 +279,13 @@
                                 </svg>
                             </div>
                             <ul id="long-menu" class="sidebar-submenu">
-                                <li><a href="#" class="sidebar-link">Desa Tanah Abang Selatan</a></li>
-                                <li><a href="#" class="sidebar-link">Desa Tanah Abang Barat</a></li>
-                                <li><a href="#" class="sidebar-link">Desa Tanah Abang Utara</a></li>
+                                <li><a href="#" class="sidebar-link" onclick="navigateTo('village', event, 'Desa Tanah Abang Selatan', 'Long Mesangat')">Desa Tanah Abang Selatan</a></li>
+                                <li><a href="#" class="sidebar-link" onclick="navigateTo('village', event, 'Desa Tanah Abang Barat', 'Long Mesangat')">Desa Tanah Abang Barat</a></li>
+                                <li><a href="#" class="sidebar-link" onclick="navigateTo('village', event, 'Desa Tanah Abang Utara', 'Long Mesangat')">Desa Tanah Abang Utara</a></li>
                             </ul>
                         </li>
 
-                        <!-- Dropdown 3: Sandaran (Collapsed) -->
+                        <!-- Dropdown 3: Sandaran -->
                         <li class="sidebar-item">
                             <div class="sidebar-link sidebar-link-parent" 
                                  onclick="toggleMenu(this, 'sandaran-menu')" 
@@ -271,74 +296,133 @@
                                 </svg>
                             </div>
                             <ul id="sandaran-menu" class="sidebar-submenu">
-                                <li><a href="#" class="sidebar-link">Desa Susuk Dalam</a></li>
+                                <li><a href="#" class="sidebar-link" onclick="navigateTo('village', event, 'Desa Susuk Dalam', 'Sandaran')">Desa Susuk Dalam</a></li>
                             </ul>
                         </li>
 
                         <!-- Menu: Download Data -->
                         <li class="sidebar-item">
-                            <a href="#" class="sidebar-link">Download Data</a>
+                            <a href="#" class="sidebar-link" id="nav-download" onclick="navigateTo('download', event)">Download Data</a>
                         </li>
 
                     </ul>
                 </nav>
             </aside>
 
-            <!-- Main Content -->
+            <!-- Main Content Area -->
             <main class="content">
-                <!-- Breadcrumbs -->
-                <div class="breadcrumbs">
-                    <a href="#">Docs</a>
-                    <span>/</span>
-                    <span>Monitoring Pekerjaan</span>
-                    <span>/</span>
-                    <span>Rekapitulasi</span>
+                
+                <!-- === PAGE: DASHBOARD === -->
+                <div id="page-dashboard" class="page-section active-page">
+                    <div class="breadcrumbs">
+                        <a href="#" onclick="navigateTo('dashboard', event)">Docs</a>
+                        <span>/</span>
+                        <span>Monitoring Pekerjaan</span>
+                        <span>/</span>
+                        <span>Dashboard</span>
+                    </div>
+
+                    <article>
+                        <h1>Data Monitoring</h1>
+                        <p>
+                            Halaman ini adalah halaman awal (Dashboard) untuk melihat Dashboard data monitoring pekerjaan secara keseluruhan di wilayah kerja Cetak Sawah.
+                        </p>
+
+                        <div class="alert alert-info">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                            <span><strong>Note:</strong> Tabel di bawah bersifat live. Refresh halaman untuk memastikan data terbaru muncul.</span>
+                        </div>
+
+                        <h2>Ringkasan Wilayah</h2>
+                        <div class="table-container">
+                            <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQoLK0B5MvEcpH9QPNbloQinOt3t7dccD32p_RvORHOzsTJFIQJ51aawwJZdgwHnWS9960yLhXmbkLo/pubhtml?widget=true&amp;headers=false"></iframe>
+                        </div>
+
+                        <h2>Time Schedule</h2>
+                        <div class="table-container">
+                            <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQoLK0B5MvEcpH9QPNbloQinOt3t7dccD32p_RvORHOzsTJFIQJ51aawwJZdgwHnWS9960yLhXmbkLo/pubhtml?widget=true&amp;headers=false"></iframe>
+                        </div>
+                    </article>
                 </div>
 
-                <!-- Article -->
-                <article>
-                    <h1>Rekapitulasi Data</h1>
-                    <p>
-                        Halaman ini adalah halaman awal (Dashboard) untuk melihat rekapitulasi data monitoring pekerjaan secara keseluruhan di wilayah kerja Cetak Sawah. Data di bawah ini diambil langsung dari Spreadsheet.
-                    </p>
+                <!-- === PAGE: VILLAGE DETAIL (TEMPLATE) === -->
+                <div id="page-village" class="page-section">
+                    <!-- Breadcrumbs diupdate via JS -->
+                    <div class="breadcrumbs" id="village-breadcrumbs"></div>
 
-                    <div class="alert alert-info">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                        <span><strong>Note:</strong> Tabel di bawah bersifat live. Refresh halaman untuk memastikan data terbaru muncul.</span>
+                    <article>
+                        <!-- Judul dinamis -->
+                        <h1 id="village-title">Nama Desa</h1>
+                        
+                        <p>
+                            Halaman ini menampilkan data detail monitoring pekerjaan untuk wilayah terpilih. 
+                            Pastikan data yang ditampilkan sesuai dengan laporan lapangan terkini.
+                        </p>
+
+                        <div class="alert alert-info">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M11 7h2v2h-2zm0 4h2v6h-2zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
+                            <span><strong>Informasi:</strong> <span id="village-info-text">Data dimuat...</span></span>
+                        </div>
+
+                        <!-- 1. Data Pekerjaan -->
+                        <h2>Progress Pekerjaan</h2>
+                        <p>Visualisasi data pekerjaan di desa ini.</p>
+                        <div class="table-container">
+                            <iframe id="village-iframe" src="" title="Data Desa"></iframe>
+                        </div>
+
+                        <!-- 2. Time Schedule (BARU DITAMBAHKAN) -->
+                        <h2>Time Schedule Desa</h2>
+                        <p>Jadwal pelaksanaan dan maintenance khusus untuk wilayah desa ini.</p>
+                        <div class="table-container">
+                            <!-- ID unik untuk iframe jadwal desa -->
+                            <iframe id="village-schedule-iframe" src="" title="Jadwal Desa"></iframe>
+                        </div>
+                    </article>
+                </div>
+
+                <!-- === PAGE: DOWNLOAD DATA === -->
+                <div id="page-download" class="page-section">
+                    <div class="breadcrumbs">
+                        <a href="#" onclick="navigateTo('dashboard', event)">Docs</a>
+                        <span>/</span>
+                        <span>Download Data</span>
                     </div>
 
-                    <h2>Ringkasan Wilayah</h2>
-                    <p>Data real-time wilayah dari sistem Cetak Sawah.</p>
+                    <article>
+                        <h1>Pusat Unduhan</h1>
+                        <p>Unduh data mentah, laporan bulanan, dan dokumentasi foto.</p>
+                        <div class="download-grid">
+                            <div class="download-card">
+                                <div class="download-icon">📊</div>
+                                <div class="download-title">Master Data Wilayah</div>
+                                <div class="download-desc">Rekapitulasi data luas lahan.</div>
+                                <a href="#" class="btn-download">Download XLSX</a>
+                            </div>
+                            <div class="download-card">
+                                <div class="download-icon">📷</div>
+                                <div class="download-title">Dokumentasi Foto</div>
+                                <div class="download-desc">Arsip foto drone minggu ke-4.</div>
+                                <a href="#" class="btn-download">Download ZIP</a>
+                            </div>
+                        </div>
+                    </article>
+                </div>
 
-                    <!-- Table Container (Embed Google Sheet 1: Rekapitulasi) -->
-                    <div class="table-container">
-                        <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQoLK0B5MvEcpH9QPNbloQinOt3t7dccD32p_RvORHOzsTJFIQJ51aawwJZdgwHnWS9960yLhXmbkLo/pubhtml?widget=true&amp;headers=false"></iframe>
-                    </div>
-
-                    <!-- NEW SECTION: Time Schedule (Embed Google Sheet 2) -->
-                    <h2>Time Schedule</h2>
-                    <p>Jadwal pelaksanaan pekerjaan dan maintenance terjadwal.</p>
-
-                    <div class="table-container">
-                        <!-- GANTI LINK DI BAWAH INI DENGAN LINK SPREADSHEET JADWAL ANDA -->
-                        <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQoLK0B5MvEcpH9QPNbloQinOt3t7dccD32p_RvORHOzsTJFIQJ51aawwJZdgwHnWS9960yLhXmbkLo/pubhtml?widget=true&amp;headers=false"></iframe>
-                    </div>
-
-                </article>
-
-                <!-- Footer -->
+                <!-- Footer (Shared) -->
                 <footer class="footer">
                     <span>© 2023 Cetak Sawah Inc.</span>
                     <a href="#">Privacy Policy</a>
                     <a href="#">Terms of Service</a>
                 </footer>
+
             </main>
         </div>
     </div>
 
-    <!-- JavaScript Interactivity -->
+    <!-- JavaScript Application Logic -->
     <script>
-        // Sidebar Mobile Toggle
+        // --- 1. Mobile Sidebar Logic ---
         const menuToggle = document.querySelector('.menu-toggle');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
@@ -353,7 +437,7 @@
         menuToggle.addEventListener('click', toggleMobileMenu);
         overlay.addEventListener('click', toggleMobileMenu);
 
-        // Generic Collapsible Submenu Function
+        // --- 2. Sidebar Accordion Logic ---
         function toggleMenu(element, menuId) {
             const submenu = document.getElementById(menuId);
             const isExpanded = element.getAttribute('aria-expanded') === 'true';
@@ -367,27 +451,96 @@
             }
         }
 
-        // Copy to Clipboard Logic
-        function copyCode(button) {
-            const codeBlock = button.closest('.code-block').querySelector('pre');
-            const text = codeBlock.innerText;
+        // --- 3. SPA Navigation Logic ---
+        
+        function navigateTo(pageId, event, param1 = null, param2 = null) {
+            if(event) event.preventDefault();
 
-            navigator.clipboard.writeText(text).then(() => {
-                const originalContent = button.innerHTML;
-                button.innerHTML = `
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                    </svg> Copied!
-                `;
-                button.style.color = '#188038';
-                setTimeout(() => {
-                    button.innerHTML = originalContent;
-                    button.style.color = '';
-                }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy text: ', err);
+            // 1. Update Sidebar Active State
+            updateSidebarActiveState(event ? event.currentTarget : null);
+
+            // 2. Hide all pages, Show target
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active-page');
             });
+            
+            const targetPage = document.getElementById(`page-${pageId}`);
+            if (targetPage) {
+                targetPage.classList.add('active-page');
+            }
+
+            // 3. Specific Page Logic
+            if (pageId === 'village' && param1 && param2) {
+                setupVillagePage(param1, param2);
+            }
+
+            // 4. Close Mobile Sidebar
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+            }
+
+            // 5. Scroll to top
+            window.scrollTo(0, 0);
         }
+
+        function updateSidebarActiveState(clickedElement) {
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            if (clickedElement) {
+                clickedElement.classList.add('active');
+                const parentSubmenu = clickedElement.closest('.sidebar-submenu');
+                if (parentSubmenu) {
+                    const parentToggle = parentSubmenu.previousElementSibling;
+                    if (parentToggle && parentToggle.classList.contains('sidebar-link-parent')) {
+                        if(parentToggle.getAttribute('aria-expanded') === 'false') {
+                            toggleMenu(parentToggle, parentSubmenu.id);
+                        }
+                    }
+                }
+            } else {
+                const dashLink = document.getElementById('nav-dashboard');
+                if(dashLink) dashLink.classList.add('active');
+            }
+        }
+
+        function setupVillagePage(villageName, districtName) {
+            // Update Title
+            const titleEl = document.getElementById('village-title');
+            titleEl.textContent = villageName;
+
+            // Update Breadcrumbs
+            const bcEl = document.getElementById('village-breadcrumbs');
+            bcEl.innerHTML = `
+                <a href="#" onclick="navigateTo('dashboard', event)">Docs</a>
+                <span>/</span>
+                <span>Monitoring Pekerjaan</span>
+                <span>/</span>
+                <span>${districtName}</span>
+                <span>/</span>
+                <span style="color:var(--color-text)">${villageName}</span>
+            `;
+
+            // Update Info Text
+            const infoEl = document.getElementById('village-info-text');
+            infoEl.textContent = `Anda sedang melihat data untuk ${villageName}, Kecamatan ${districtName}.`;
+
+            // --- SETUP IFRAME 1: PROGRESS PEKERJAAN ---
+            const iframeEl = document.getElementById('village-iframe');
+            // Catatan: Ganti URL di bawah ini sesuai kebutuhan per desa jika Anda punya link spesifik
+            // const villageMap = { 'Desa Sepaso': 'URL_1', 'Desa Keraitan': 'URL_2' };
+            // iframeEl.src = villageMap[villageName] || 'URL_DEFAULT';
+            iframeEl.src = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQoLK0B5MvEcpH9QPNbloQinOt3t7dccD32p_RvORHOzsTJFIQJ51aawwJZdgwHnWS9960yLhXmbkLo/pubhtml?widget=true&amp;headers=false";
+
+            // --- SETUP IFRAME 2: TIME SCHEDULE (BARU) ---
+            const scheduleIframeEl = document.getElementById('village-schedule-iframe');
+            // Di sini Anda bisa memasukkan URL Spreadsheet Jadwal khusus untuk desa tersebut
+            // Jika semua desa menggunakan sheet jadwal yang sama (tapi mungkin filter berbeda), gunakan URL yang sama.
+            scheduleIframeEl.src = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQoLK0B5MvEcpH9QPNbloQinOt3t7dccD32p_RvORHOzsTJFIQJ51aawwJZdgwHnWS9960yLhXmbkLo/pubhtml?widget=true&amp;headers=false";
+        }
+
     </script>
 </body>
 </html>
