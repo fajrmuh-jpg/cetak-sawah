@@ -562,16 +562,7 @@
                             <iframe id="village-iframe" src="" title="Data Desa" onload="hideLoader('loader-village-1', this)"></iframe>
                         </div>
 
-                        <!-- 2. Time Schedule -->
-                        <h2>Time Schedule Desa</h2>
-                        <p>Jadwal pelaksanaan dan maintenance khusus untuk wilayah desa ini.</p>
-                        <div class="table-container">
-                            <div class="loading-overlay" id="loader-village-2">
-                                <div class="spinner"></div>
-                                <div class="loading-text">Memuat Jadwal...</div>
-                            </div>
-                            <iframe id="village-schedule-iframe" src="" title="Jadwal Desa" onload="hideLoader('loader-village-2', this)"></iframe>
-                        </div>
+                        <!-- BAGIAN TIME SCHEDULE DESA DIHAPUS SESUAI INSTRUKSI -->
                     </article>
                 </div>
 
@@ -726,11 +717,8 @@
             iframeEl.classList.remove('loaded');
             iframeEl.src = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQoLK0B5MvEcpH9QPNbloQinOt3t7dccD32p_RvORHOzsTJFIQJ51aawwJZdgwHnWS9960yLhXmbkLo/pubhtml?widget=true&amp;headers=false";
 
-            // --- SETUP IFRAME 2: TIME SCHEDULE ---
-            const scheduleIframeEl = document.getElementById('village-schedule-iframe');
-            document.getElementById('loader-village-2').classList.remove('hidden');
-            scheduleIframeEl.classList.remove('loaded');
-            scheduleIframeEl.src = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQoLK0B5MvEcpH9QPNbloQinOt3t7dccD32p_RvORHOzsTJFIQJ51aawwJZdgwHnWS9960yLhXmbkLo/pubhtml?widget=true&amp;headers=false";
+            // --- SETUP IFRAME 2: TIME SCHEDULE (DIHAPUS) ---
+            // Kode iframe jadwal desa telah dihapus.
         }
 
         // --- 4. Loader Function ---
@@ -787,9 +775,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
