@@ -304,8 +304,19 @@
         }
         .btn-download:hover { background-color: var(--color-primary-hover); text-decoration: none; }
 
-        .footer { margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--color-border); font-size: 12px; color: var(--color-text-secondary); display: flex; gap: 24px; }
+        .footer {
+            text-align: left;
+        }
 
+        .footer-author {
+            font-size: 0.80em;
+            opacity: 0.8;
+        }
+
+        .footer-partner {
+            font-size: 0.80em;
+            opacity: 0.8;
+            
         /* --- RESPONSIVE --- */
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); box-shadow: 4px 0 12px rgba(0,0,0,0.1); }
@@ -593,7 +604,8 @@
 
                 <!-- Footer (Shared) -->
                 <footer class="footer">
-                    <span>Created By : M.Fajar © KODIM 0909/KTM | DISTAN Kutai Timur</span>
+                    <span class="footer-author">Created By : mufajr | </span>
+                    <span class="footer-partner"> Komando Distrik Militer 0909/KTM – Dinas Tanaman Pangan Kutai Timur | Cetak Sawah </span>
                 </footer>
 
             </main>
@@ -774,4 +786,5 @@
     </script>
 </body>
 </html>
+
 
