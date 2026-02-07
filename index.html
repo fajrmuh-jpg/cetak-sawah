@@ -780,6 +780,38 @@
         // Jalankan saat halaman dimuat
         document.addEventListener('DOMContentLoaded', fetchMetrics);
 
+        // --- TAMBAHAN: Handle URL Hash saat Refresh Halaman ---
+        function handleInitialLoad() {
+            const hash = window.location.hash; // Ambil hash dari URL (contoh: #village|Desa Sepaso|Bengalon)
+            
+            if (hash && hash.startsWith('#village|')) {
+                // Pisahkan data hash
+                const parts = hash.substring(1).split('|'); // Hapus # lalu pisahkan pakai |
+                // parts[0] = "village", parts[1] = "Desa Sepaso", parts[2] = "Bengalon"
+                
+                if (parts.length >= 3) {
+                    // Panggil fungsi navigasi
+                    navigateTo('village', null, parts[1], parts[2]);
+                    
+                    // Buka sidebar menu secara otomatis agar sesuai
+                    const districtName = parts[2].replace(/ /g, ''); // Hapus spasi untuk ID matching
+                    // Logic sederhana untuk buka menu berdasarkan distrik (opsional, perlu disesuaikan ID menu-nya)
+                }
+            } else if (hash === '#download') {
+                navigateTo('download', null);
+            } else {
+                // Default ke dashboard
+                navigateTo('dashboard', null);
+            }
+        }
+
+        // Jalankan saat load
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchMetrics(); // Jalankan fetch metric
+            handleInitialLoad(); // Jalankan cek URL
+        });
+
     </script>
 </body>
 </html>
+
