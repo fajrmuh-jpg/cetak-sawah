@@ -699,34 +699,35 @@
         }
 
         function setupVillagePage(villageName, districtName) {
-            // Update Title
-            const titleEl = document.getElementById('village-title');
-            titleEl.textContent = villageName;
+            // 1. DECODE data dulu agar %20 jadi spasi lagi
+            const cleanVillage = decodeURIComponent(villageName);
+            const cleanDistrict = decodeURIComponent(districtName);
 
-            // Update Breadcrumbs
+            // 2. Update Title (Gunakan variabel yang sudah dibersihkan)
+            const titleEl = document.getElementById('village-title');
+            titleEl.textContent = cleanVillage; 
+
+            // 3. Update Breadcrumbs (Juga gunakan yang bersih)
             const bcEl = document.getElementById('village-breadcrumbs');
             bcEl.innerHTML = `
                 <a href="#dashboard" onclick="navigateTo('dashboard', event)">Docs</a>
                 <span>/</span>
                 <span>Monitoring Pekerjaan</span>
                 <span>/</span>
-                <span>${districtName}</span>
+                <span>${cleanDistrict}</span>
                 <span>/</span>
-                <span style="color:var(--color-text)">${villageName}</span>
+                <span style="color:var(--color-text)">${cleanVillage}</span>
             `;
 
-            // Update Info Text
+            // 4. Update Info Text
             const infoEl = document.getElementById('village-info-text');
-            infoEl.textContent = `Anda sedang melihat data untuk ${villageName}, Kecamatan ${districtName}.`;
+            infoEl.textContent = `Anda sedang melihat data untuk ${cleanVillage}, Kecamatan ${cleanDistrict}.`;
 
-            // --- SETUP IFRAME 1: PROGRESS PEKERJAAN ---
+            // --- Sisa kode Iframe sama seperti sebelumnya ---
             const iframeEl = document.getElementById('village-iframe');
             document.getElementById('loader-village-1').classList.remove('hidden');
             iframeEl.classList.remove('loaded');
             iframeEl.src = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQoLK0B5MvEcpH9QPNbloQinOt3t7dccD32p_RvORHOzsTJFIQJ51aawwJZdgwHnWS9960yLhXmbkLo/pubhtml?widget=true&amp;headers=false";
-
-            // --- SETUP IFRAME 2: TIME SCHEDULE (DIHAPUS) ---
-            // Kode iframe jadwal desa telah dihapus.
         }
 
         // --- 4. Loader Function ---
