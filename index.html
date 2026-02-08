@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cetak Sawah Documentation</title>
+    <title>E Monitoring</title>
 
     <link rel="icon" href="logo.png">
     
@@ -1079,10 +1079,10 @@
             }
         }
 
-        // --- 7. FETCH DYNAMIC METRICS & RENDER CHARTS ---
-        const API_URL = "https://script.google.com/macros/s/AKfycbzST1T4rifQdgDl4eC5FGpAcEEJbZuoEExaCqC19ZzZyHPYW6G3GEs7eiRAGZG1lhYw/exec"; 
+        const API_URL = "https://script.google.com/macros/s/AKfycbwLhxcRsAuhmAiBUCSrFoxb8Xa4PUsjpsh21Oj6Mw89pWK9-NGeymexyEvknC4ZoZ-n/exec"; // GANTI DENGAN URL BARU DARI LANGKAH 1
 
         async function fetchMetrics() {
+            // Cek URL dummy (Hapus baris ini jika sudah yakin URL-nya benar)
             if(API_URL.includes("URL_GOOGLE_APPS_SCRIPT_ANDA")) return;
 
             try {
@@ -1094,7 +1094,7 @@
                     return;
                 }
 
-                // --- UPDATE GLOBAL METRICS ---
+                // --- 1. UPDATE GLOBAL METRICS ---
                 if (data.totalLahan) document.getElementById('val-lahan').innerText = data.totalLahan;
                 if (data.desaTermonitor) {
                     document.getElementById('val-desa').innerText = data.desaTermonitor;
@@ -1103,26 +1103,27 @@
                 if (data.progress) document.getElementById('val-progress').innerText = data.progress;
                 if (data.sisaWaktu) document.getElementById('val-waktu').innerText = data.sisaWaktu;
 
-                // --- UPDATE PROGRESS PER DESA DARI SHEET ---
+                // --- 2. UPDATE DATA DI MEMORY ---
                 if (data.villageProgress) {
                     for (const [villageName, progressValue] of Object.entries(data.villageProgress)) {
+                        // Pastikan nama di database dan di data API cocok (gunakan trim disini juga untuk aman)
                         if (VILLAGE_DATA[villageName]) {
                             VILLAGE_DATA[villageName].progress = progressValue;
                         }
                     }
                 }
 
-                // --- FIX LIVE UPDATE UNTUK HALAMAN DESA (BARU!) ---
-                // Cek apakah user sedang membuka halaman desa saat data masuk
+                // --- 3. FIX LIVE UPDATE (WALAUPUN SUDAH DI HALAMAN DESA) ---
+                // Cek apakah user sedang membuka halaman desa
                 const villagePage = document.getElementById('page-village');
                 if (villagePage && villagePage.classList.contains('active-page')) {
                     const currentTitle = document.getElementById('village-title').textContent;
                     
-                    // Jika data untuk desa yg sedang dibuka ada update
+                    // Ambil data terbaru dari database
                     if (VILLAGE_DATA[currentTitle]) {
                         const newVal = VILLAGE_DATA[currentTitle].progress;
                         
-                        // Update visual bar secara langsung
+                        // Update visual bar secara paksa
                         document.getElementById('village-progress-bar').style.width = `${newVal}%`;
                         document.getElementById('village-progress-text').textContent = `${newVal}%`;
                         
@@ -1133,9 +1134,9 @@
                         else statusEl.textContent = "Status: Selesai (100%)";
                     }
                 }
-                // -------------------------------------------------
+                // ----------------------------------------
 
-                // --- RENDER CHARTS SETELAH DATA UPDATE ---
+                // --- 4. RENDER CHARTS ---
                 renderCharts();
 
             } catch (error) {
@@ -1280,3 +1281,4 @@
     </script>
 </body>
 </html>
+
