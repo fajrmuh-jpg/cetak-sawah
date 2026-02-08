@@ -638,6 +638,29 @@
         }
 
         // --- 3. SPA Navigation Logic ---
+
+                // --- DAFTAR LINK GOOGLE SHEETS PER DESA ---
+        const VILLAGE_LINKS = {
+            // KECAMATAN BENGALON
+            "Desa Sepaso": "MASUKKAN_LINK_SHEET_DESA_SEPASO_DISINI",
+            "Desa Sepaso 2": "MASUKKAN_LINK_SHEET_DESA_SEPASO_2_DISINI",
+            "Desa Sepaso Barat 1": "MASUKKAN_LINK_SHEET_DESA_SEPASO_BARAT_1_DISINI",
+            "Desa Sepaso Barat 2": "MASUKKAN_LINK_SHEET_DESA_SEPASO_BARAT_2_DISINI",
+            "Desa Sepaso Barat 3": "MASUKKAN_LINK_SHEET_DESA_SEPASO_BARAT_3_DISINI",
+            "Desa Sepaso Timur": "MASUKKAN_LINK_SHEET_DESA_SEPASO_TIMUR_DISINI",
+            "Desa Sepaso Selatan": "MASUKKAN_LINK_SHEET_DESA_SEPASO_SELATAN_DISINI",
+            "Desa Sepaso Selatan 2": "MASUKKAN_LINK_SHEET_DESA_SEPASO_SELATAN_2_DISINI",
+            "Desa Keraitan": "https://docs.google.com/spreadsheets/d/e/2PACX-1vShEn3E3mAq6QV6k4djUbI1ZEK8h51QKyM2r3LdRqurZU-An4fp7hAcrhOqT87SlVkV3PXkp5HJlfbr/pubhtml?widget=true&amp;headers=false",
+            "Desa Keraitan 2": "MASUKKAN_LINK_SHEET_DESA_KERAITAN_2_DISINI",
+
+            // KECAMATAN LONG MESANGAT
+            "Desa Tanah Abang Selatan": "MASUKKAN_LINK_SHEET_TANAH_ABANG_SELATAN_DISINI",
+            "Desa Tanah Abang Barat": "MASUKKAN_LINK_SHEET_TANAH_ABANG_BARAT_DISINI",
+            "Desa Tanah Abang Utara": "MASUKKAN_LINK_SHEET_TANAH_ABANG_UTARA_DISINI",
+
+            // KECAMATAN SANDARAN
+            "Desa Susuk Dalam": "MASUKKAN_LINK_SHEET_SUSUK_DALAM_DISINI"
+        };
         
         function navigateTo(pageId, event, param1 = null, param2 = null) {
             if(event) event.preventDefault();
@@ -701,15 +724,14 @@
         }
 
         function setupVillagePage(villageName, districtName) {
-            // 1. DECODE data dulu agar %20 jadi spasi lagi
+            // 1. DECODE data agar %20 jadi spasi
             const cleanVillage = decodeURIComponent(villageName);
             const cleanDistrict = decodeURIComponent(districtName);
 
-            // 2. Update Title (Gunakan variabel yang sudah dibersihkan)
+            // 2. Update Title & Breadcrumbs (Kode ini tetap sama)
             const titleEl = document.getElementById('village-title');
             titleEl.textContent = cleanVillage; 
 
-            // 3. Update Breadcrumbs (Juga gunakan yang bersih)
             const bcEl = document.getElementById('village-breadcrumbs');
             bcEl.innerHTML = `
                 <a href="#dashboard" onclick="navigateTo('dashboard', event)">Docs</a>
@@ -721,15 +743,29 @@
                 <span style="color:var(--color-text)">${cleanVillage}</span>
             `;
 
-            // 4. Update Info Text
             const infoEl = document.getElementById('village-info-text');
             infoEl.textContent = `Anda sedang melihat data untuk ${cleanVillage}, Kecamatan ${cleanDistrict}.`;
 
-            // --- Sisa kode Iframe sama seperti sebelumnya ---
+            // --- BAGIAN BARU: LOGIKA AMBIL LINK ---
+            
             const iframeEl = document.getElementById('village-iframe');
-            document.getElementById('loader-village-1').classList.remove('hidden');
+            const loader = document.getElementById('loader-village-1');
+            
+            // Reset loader
+            loader.classList.remove('hidden');
             iframeEl.classList.remove('loaded');
-            iframeEl.src = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQoLK0B5MvEcpH9QPNbloQinOt3t7dccD32p_RvORHOzsTJFIQJ51aawwJZdgwHnWS9960yLhXmbkLo/pubhtml?widget=true&amp;headers=false";
+            
+            // Cari link berdasarkan Nama Desa dari daftar VILLAGE_LINKS
+            let targetUrl = VILLAGE_LINKS[cleanVillage];
+
+            // Jika link tidak ditemukan di daftar, pakai link fallback (misal: link lama atau kosong)
+            if (!targetUrl) {
+                console.warn(`Link untuk ${cleanVillage} belum diset. Menggunakan link default.`);
+                targetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQoLK0B5MvEcpH9QPNbloQinOt3t7dccD32p_RvORHOzsTJFIQJ51aawwJZdgwHnWS9960yLhXmbkLo/pubhtml?widget=true&amp;headers=false";
+            }
+
+            // Set sumber iframe
+            iframeEl.src = targetUrl;
         }
 
         // --- 4. Loader Function ---
@@ -817,6 +853,7 @@
     </script>
 </body>
 </html>
+
 
 
 
