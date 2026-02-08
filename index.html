@@ -227,9 +227,6 @@
         h2 { font-size: 24px; font-weight: 400; margin-top: 40px; margin-bottom: 16px; border-bottom: 1px solid var(--color-border); padding-bottom: 8px; }
         p { margin-bottom: 16px; color: var(--color-text-secondary); font-size: 16px; }
         
-        .breadcrumbs { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 16px; display: flex; align-items: center; }
-        .breadcrumbs span { margin: 0 8px; color: var(--color-border); }
-
         .alert { padding: 12px 16px; margin: 24px 0; border-radius: 4px; display: flex; align-items: flex-start; gap: 12px; font-size: 14px; }
         .alert-info { background-color: var(--color-info-bg); color: var(--color-info-text); border-left: 4px solid var(--color-info-text); }
         
@@ -587,14 +584,8 @@
                 
                 <!-- === PAGE: DASHBOARD === -->
                 <div id="page-dashboard" class="page-section active-page">
-                    <div class="breadcrumbs">
-                        <a href="#dashboard" onclick="navigateTo('dashboard', event)">Docs</a>
-                        <span>/</span>
-                        <span>Monitoring Pekerjaan</span>
-                        <span>/</span>
-                        <span>Dashboard</span>
-                    </div>
-
+                    <!-- BREADCRUMBS REMOVED HERE -->
+                    
                     <article>
                         <h1>Data Monitoring</h1>
                         
@@ -703,7 +694,7 @@
 
                 <!-- === PAGE: VILLAGE DETAIL (TEMPLATE) === -->
                 <div id="page-village" class="page-section">
-                    <div class="breadcrumbs" id="village-breadcrumbs"></div>
+                    <!-- BREADCRUMBS REMOVED HERE (Originally had id="village-breadcrumbs") -->
 
                     <article>
                         <h1 id="village-title">Nama Desa</h1>
@@ -745,11 +736,7 @@
 
                 <!-- === PAGE: DOWNLOAD DATA === -->
                 <div id="page-download" class="page-section">
-                    <div class="breadcrumbs">
-                        <a href="#dashboard" onclick="navigateTo('dashboard', event)">Docs</a>
-                        <span>/</span>
-                        <span>Download Data</span>
-                    </div>
+                    <!-- BREADCRUMBS REMOVED HERE -->
 
                     <article>
                         <h1>Pusat Unduhan</h1>
@@ -996,20 +983,13 @@
             const cleanVillage = decodeURIComponent(villageName);
             const cleanDistrict = decodeURIComponent(districtName);
 
-            // 2. Update Title & Breadcrumbs
+            // 2. Update Title (Breadcrumbs Logic Removed)
             const titleEl = document.getElementById('village-title');
             titleEl.textContent = cleanVillage; 
 
-            const bcEl = document.getElementById('village-breadcrumbs');
-            bcEl.innerHTML = `
-                <a href="#dashboard" onclick="navigateTo('dashboard', event)">Docs</a>
-                <span>/</span>
-                <span>Monitoring Pekerjaan</span>
-                <span>/</span>
-                <span>${cleanDistrict}</span>
-                <span>/</span>
-                <span style="color:var(--color-text)">${cleanVillage}</span>
-            `;
+            // BREADCRUMBS UPDATE REMOVED HERE
+            // const bcEl = document.getElementById('village-breadcrumbs');
+            // bcEl.innerHTML = ...
 
             // 3. AMBIL DATA DARI DATABASE
             const data = VILLAGE_DATA[cleanVillage];
@@ -1280,6 +1260,3 @@
     </script>
 </body>
 </html>
-
-
-
