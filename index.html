@@ -768,7 +768,7 @@
         </div>
     </div>
 
-    <!-- JavaScript Application Logic -->
+    <!-- JavaScript Application Logic (UPDATED WITH DECIMAL FIX) -->
     <script>
         // --- 1. Dark Mode Logic ---
         function toggleTheme() {
@@ -987,10 +987,6 @@
             const titleEl = document.getElementById('village-title');
             titleEl.textContent = cleanVillage; 
 
-            // BREADCRUMBS UPDATE REMOVED HERE
-            // const bcEl = document.getElementById('village-breadcrumbs');
-            // bcEl.innerHTML = ...
-
             // 3. AMBIL DATA DARI DATABASE
             const data = VILLAGE_DATA[cleanVillage];
             
@@ -1009,7 +1005,7 @@
                 console.warn(`Data untuk ${cleanVillage} belum lengkap di database.`);
             }
 
-            // 4. UPDATE PROGRESS BAR (BARU!)
+            // 4. UPDATE PROGRESS BAR (DENGAN FORMAT ANGKA .toFixed(2))
             const progressText = document.getElementById('village-progress-text');
             const progressBar = document.getElementById('village-progress-bar');
             const progressStatus = document.getElementById('village-progress-status');
@@ -1017,13 +1013,15 @@
             // Animasi bar
             progressBar.style.width = '0%'; // Reset dulu
             setTimeout(() => {
-                progressBar.style.width = `${progressVal}%`;
+                // Gunakan parseFloat dan toFixed(2) di sini
+                progressBar.style.width = `${parseFloat(progressVal).toFixed(2)}%`;
             }, 100); // Sedikit delay agar animasi terlihat
             
-            progressText.textContent = `${progressVal}%`;
+            // Format teks persentase
+            progressText.textContent = `${parseFloat(progressVal).toFixed(2)}%`;
 
             // Status text berdasarkan persen
-            if (progressVal === 0) progressStatus.textContent = "Status: Belum dimulai";
+            if (progressVal == 0) progressStatus.textContent = "Status: Belum dimulai";
             else if (progressVal < 50) progressStatus.textContent = "Status: Persiapan / Sedang berjalan";
             else if (progressVal < 100) progressStatus.textContent = "Status: Hampir Selesai";
             else progressStatus.textContent = "Status: Selesai (100%)";
@@ -1058,10 +1056,9 @@
             }
         }
 
-        const API_URL = "https://script.google.com/macros/s/AKfycbwLhxcRsAuhmAiBUCSrFoxb8Xa4PUsjpsh21Oj6Mw89pWK9-NGeymexyEvknC4ZoZ-n/exec"; // GANTI DENGAN URL BARU DARI LANGKAH 1
+        const API_URL = "https://script.google.com/macros/s/AKfycbwLhxcRsAuhmAiBUCSrFoxb8Xa4PUsjpsh21Oj6Mw89pWK9-NGeymexyEvknC4ZoZ-n/exec"; 
 
         async function fetchMetrics() {
-            // Cek URL dummy (Hapus baris ini jika sudah yakin URL-nya benar)
             if(API_URL.includes("URL_GOOGLE_APPS_SCRIPT_ANDA")) return;
 
             try {
@@ -1079,13 +1076,13 @@
                     document.getElementById('val-desa').innerText = data.desaTermonitor;
                     document.getElementById('txt-persen-desa').innerText = "Aktif";
                 }
-                if (data.progress) document.getElementById('val-progress').innerText = data.progress;
+                // UPDATE: Format angka progress rata-rata menjadi 2 desimal
+                if (data.progress) document.getElementById('val-progress').innerText = parseFloat(data.progress).toFixed(2) + '%';
                 if (data.sisaWaktu) document.getElementById('val-waktu').innerText = data.sisaWaktu;
 
                 // --- 2. UPDATE DATA DI MEMORY ---
                 if (data.villageProgress) {
                     for (const [villageName, progressValue] of Object.entries(data.villageProgress)) {
-                        // Pastikan nama di database dan di data API cocok (gunakan trim disini juga untuk aman)
                         if (VILLAGE_DATA[villageName]) {
                             VILLAGE_DATA[villageName].progress = progressValue;
                         }
@@ -1093,21 +1090,19 @@
                 }
 
                 // --- 3. FIX LIVE UPDATE (WALAUPUN SUDAH DI HALAMAN DESA) ---
-                // Cek apakah user sedang membuka halaman desa
                 const villagePage = document.getElementById('page-village');
                 if (villagePage && villagePage.classList.contains('active-page')) {
                     const currentTitle = document.getElementById('village-title').textContent;
                     
-                    // Ambil data terbaru dari database
                     if (VILLAGE_DATA[currentTitle]) {
                         const newVal = VILLAGE_DATA[currentTitle].progress;
                         
-                        // Update visual bar secara paksa
-                        document.getElementById('village-progress-bar').style.width = `${newVal}%`;
-                        document.getElementById('village-progress-text').textContent = `${newVal}%`;
+                        // UPDATE: Format angka live update menjadi 2 desimal
+                        document.getElementById('village-progress-bar').style.width = `${parseFloat(newVal).toFixed(2)}%`;
+                        document.getElementById('village-progress-text').textContent = `${parseFloat(newVal).toFixed(2)}%`;
                         
                         const statusEl = document.getElementById('village-progress-status');
-                        if (newVal === 0) statusEl.textContent = "Status: Belum dimulai";
+                        if (newVal == 0) statusEl.textContent = "Status: Belum dimulai";
                         else if (newVal < 50) statusEl.textContent = "Status: Persiapan / Sedang berjalan";
                         else if (newVal < 100) statusEl.textContent = "Status: Hampir Selesai";
                         else statusEl.textContent = "Status: Selesai (100%)";
@@ -1128,23 +1123,21 @@
         let topVillagesChartInstance = null;
 
         function renderCharts() {
-            // Helper untuk mendapatkan warna teks berdasarkan tema
             const textColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-color-text').trim();
 
-            // 1. Data untuk Doughnut Chart (Distribusi Status)
+            // 1. Data untuk Doughnut Chart
             let completed = 0;
             let inProgress = 0;
             let notStarted = 0;
 
             for (const key in VILLAGE_DATA) {
                 const val = VILLAGE_DATA[key].progress;
-                if (val === 100) completed++;
-                else if (val === 0) notStarted++;
+                if (val == 100) completed++;
+                else if (val == 0) notStarted++;
                 else inProgress++;
             }
 
             // 2. Data untuk Bar Chart (Top 5)
-            // Convert Object to Array, Sort by progress desc, Slice 5
             const sortedVillages = Object.entries(VILLAGE_DATA)
                 .sort(([, a], [, b]) => b.progress - a.progress)
                 .slice(0, 5);
@@ -1154,7 +1147,7 @@
 
             // --- RENDER DOUGHNUT CHART ---
             const ctxStatus = document.getElementById('statusChart').getContext('2d');
-            if (statusChartInstance) statusChartInstance.destroy(); // Hapus chart lama
+            if (statusChartInstance) statusChartInstance.destroy(); 
 
             statusChartInstance = new Chart(ctxStatus, {
                 type: 'doughnut',
@@ -1162,11 +1155,7 @@
                     labels: ['Selesai (100%)', 'Sedang Berjalan', 'Belum Mulai'],
                     datasets: [{
                         data: [completed, inProgress, notStarted],
-                        backgroundColor: [
-                            '#34a853', // Hijau
-                            '#fbbc04', // Kuning/Orange
-                            '#ea4335'  // Merah
-                        ],
+                        backgroundColor: ['#34a853', '#fbbc04', '#ea4335'],
                         borderWidth: 0
                     }]
                 },
@@ -1198,11 +1187,7 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     layout: {
-                        padding: {
-                            top: 10, // Tambah jarak atas dari judul
-                            left: 10, // Jarak kiri dari angka persen
-                            right: 10
-                        }
+                        padding: { top: 10, left: 10, right: 10 }
                     },
                     scales: {
                         y: {
@@ -1210,7 +1195,11 @@
                             max: 100,
                             ticks: { 
                                 color: textColor,
-                                font: { size: 10 } // Font lebih kecil agar muat
+                                font: { size: 10 },
+                                // UPDATE: Format angka di sumbu Y agar tidak terlalu panjang
+                                callback: function(value) {
+                                    return value.toFixed(2) + '%';
+                                }
                             },
                             grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-border').trim() }
                         },
@@ -1218,7 +1207,6 @@
                             ticks: { 
                                 color: textColor,
                                 font: { size: 11 },
-                                // KEY UPDATE: Miringkan nama desa agar tidak bertabrakan
                                 maxRotation: 45,
                                 minRotation: 45,
                                 autoSkip: false
@@ -1227,7 +1215,22 @@
                         }
                     },
                     plugins: {
-                        legend: { display: false }
+                        legend: { display: false },
+                        // UPDATE: Format tooltip saat mouse hover di grafik batang
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y.toFixed(2) + '%';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
                     }
                 }
             });
@@ -1260,7 +1263,3 @@
     </script>
 </body>
 </html>
-
-
-
-
